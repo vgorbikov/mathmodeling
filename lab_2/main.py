@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as pl
 from scipy import interpolate
-# from lab1.main import GraphData
 
 
 class GraphData():
@@ -9,9 +8,9 @@ class GraphData():
     Структура для хранения и преобразования данных графика
     """
     def __init__(self, graphs_data: list[list]) -> None:
-        self.graphs: list[list] = graphs_data
         # данные графиков, разделённые по осям
-        self.axis_separated_graphs: list[list] = [[[point[0] for point in graph],[point[1] for point in graph]] for graph in self.graphs]
+        self.graphs: list[list] = [[[point[0] for point in graph],[point[1] for point in graph]] for graph in graphs_data]
+        self.sort_points()
 
 
     @classmethod
@@ -25,7 +24,21 @@ class GraphData():
 
 
     def sort_points(self):
-        pass
+        for graph in self.graphs:
+
+            sorted = False
+            while not sorted:
+                sorted = True
+                for i in range(len(graph[0])-1):
+                    if graph[0][i] > graph[0][i+1]:
+                        sorted = False
+                        xtmp = graph[0][i]
+                        ytmp = graph[0][i]
+                        graph[0][i] = graph[0][i+1]
+                        graph[0][i+1] = xtmp
+                        graph[1][i] = graph[1][i+1]
+                        graph[1][i+1] = xtmp
+
 
 
     @property
@@ -46,6 +59,9 @@ def piece_linear(x1: int, x2: int, y1: int, y2: int):
 
 
 def piece_parabolic(x1, x2, x3, y1, y2, y3):
+    """
+    Возвращает интерполирующую функцию для точек (x1, x2, x3)
+    """
     l = np.array([
         [x1**2, x1, 1.],
         [x2**2, x2, 1.],
@@ -58,6 +74,10 @@ def piece_parabolic(x1, x2, x3, y1, y2, y3):
 
 
 def global_lagrange(x, xs: list, ys: list):
+    """
+    Возвращает значение функции в точке x
+    Для рассчёта требует координаты всех опорных точек интерполяции
+    """
     l = 0
     for i in range(len(xs)):
         top = 1
@@ -138,36 +158,51 @@ def inter_cube(xs, ys, step):
 
 
 
-xs = [1, 2, 3, 4, 5, 6, 7, 8]
-ys = [0, 3, 5, 6, 6, 8, 3, 2]
+intpl_methods_description = {
+        0: "linear",
+        1: "parabolic",
+        2: "Lagrange",
+        3: "Cube splain"
+    }
 
-# xs = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
-# ys = [1/np.cos(x) for x in xs]
+intpl_mths = {
+    0: inter_linear,
+    1: inter_parabolic,
+    2: inter_lagrange,
+    3: inter_cube
+}
 
-
-
-# pl.plot(*inter_linear(xs, ys, 0.01))
-pl.plot(*inter_parabolic(xs, ys, 0.01))
-# pl.plot(*inter_lagrange(xs, ys, 0.01))
-# pl.plot(*inter_cube(xs, ys, 0.01))
-pl.scatter(xs, ys)
 
 
 def main_menu(g_count: int):
     print("Введите q для выхода\n<!>При выборе нескольких графиков, они отображаются в режиме наложения")
-    return input("Введите номера графиков для отображения через пробел [0-{}]: ".format(g_count-1))    
+    graph_numbers = input("Введите номера графиков для отображения через пробел [0-{}]: ".format(g_count-1))
+    if graph_numbers != 'q': 
+        graph_numbers = [int(i) for i in graph_numbers.split(' ')]
+    else: 
+        return 0
+    print("Выберите метод интерполяции:")
+    for mth in intpl_methods_description.items():
+        print("{} [{}]".format(mth[1], mth[0]))
+    intpl_method = int(input("> "))
+    return  {"gnums": graph_numbers,
+             "method": intpl_method}
 
 
 
-# g = GraphData.load_graphs("g.txt")
+g = GraphData.load_graphs("g.txt")
 
-# while True:
-#     choice = main_menu(g.graph_count)
-#     if  choice == "q":
-#         break
-#     else:
-#         for n in [int(i) for i in choice.split(' ')]:
-#             pl.scatter(g.axis_separated_graphs[n][0], g.axis_separated_graphs[n][1])
-#         pl.show()
+
+
+while True:
+    params = main_menu(g.graph_count)
+    if  params == 0:
+        break
+    else:
+        for gnum in params["gnums"]:
+            pl.plot(*intpl_mths[params["method"]](g.graphs[gnum][0], g.graphs[gnum][1], 0.01))
+            pl.scatter(g.graphs[gnum][0], g.graphs[gnum][1])
+        pl.show()
+
 
 pl.show()
