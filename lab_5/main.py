@@ -13,7 +13,7 @@ def get_dens_bins(values: list, bins_count: int):
     """
     Возвращает список значений и список накопленных весов для построения гистограммы
     """
-    cor = 0.02
+    cor = 0
     hist_values = []
     weights = []
     n = len(values)
@@ -138,13 +138,27 @@ def get_volume():
             return count
         except:
             print("<!>Необходимо ввести целое число<!>")
+
+
+
+def get_bins_count():
+    while True:
+        count = input("Укажите количество интервалов группировки [21]:")
+        if count == '':
+            count = 21
+        try:
+            count = int(count)
+            return count
+        except:
+            print("<!>Необходимо ввести целое число<!>")
         
 
-def eq_menu():
 
+def eq_menu():
     print("<i>Равномерное распределение<i>")
     a, b = (int(num) for num in input("Укажите параметры <a> и <b> через пробел: ").split(' '))
     count = get_volume()
+    bins_count = get_bins_count()
 
     def norm(x):
         if x>b:
@@ -161,56 +175,112 @@ def eq_menu():
         return 1/(b-a)
 
     eq_vals = equal_inverse(count, a, b)
-    dens_vals, dens_weights = get_dens_bins(eq_vals, 21)
+    dens_vals, dens_weights = get_dens_bins(eq_vals, bins_count=bins_count)
     plt.figure(1)
+    plt.title("Эмпирическая и теоритическая плотность")
     plt.hist(dens_vals, 
              weights=dens_weights, 
              bins=len(dens_vals),
-             label="Равнораспределённые величины")
+             label='Эмпирическая плотность')
     xs = np.arange(a-1, b+1, 0.01)
     dens_ys = [norm_dense(x) for x in xs]
-    plt.plot(xs, dens_ys)
+    plt.plot(xs, dens_ys, label="Теоретическая плотность")
+    plt.legend()
 
-    dist_vals, dist_weights = get_dist_bins(eq_vals, 21)
+    dist_vals, dist_weights = get_dist_bins(eq_vals, bins_count=bins_count)
     plt.figure(2)
+    plt.title("Эмпирическая и теоритическая функция распределения")
     plt.hist(dist_vals, 
              weights=dist_weights, 
              bins=len(dist_vals),
-             label="Равнораспределённые величины")
+             label="Полигон накопленных частот")
     dist_ys = [norm(x) for x in xs]
-    plt.plot(xs, dist_ys)
+    plt.plot(xs, dist_ys, label="Теоретическое распределение")
+    plt.legend()
 
     plt.show()
+
 
 
 def gauss_menu():
     print("<i>Нормальное распределение<i>")
     mu, sig = (int(num) for num in input("Укажите параметры <mu> и <sigma> через пробел: ").split(' '))
     count = get_volume()
+    bins_count = get_bins_count()
     gauss_vals = gauss_clt(count, mu, sig)
 
-    dens_vals, dens_weights = get_dens_bins(gauss_vals, 21)
+    dens_vals, dens_weights = get_dens_bins(gauss_vals, bins_count=bins_count)
     plt.figure(1)
+    plt.title("Эмпирическая и теоритическая плотность")
     plt.hist(dens_vals, 
              weights=dens_weights, 
              bins=len(dens_vals),
-             label="Нормально распределённые величины")
-    xs = np.arange(mu-3, mu+3, 0.01)
+             label='Эмпирическая плотность')
+    xs = np.arange(mu-4*sig, mu+4*sig, 0.01)
     dens_ys = stats.norm.pdf(xs, mu, sig)
-    plt.plot(xs, dens_ys)
+    plt.plot(xs, dens_ys, label="Теоретическая плотность")
 
-    dist_vals, dist_weights = get_dist_bins(gauss_vals, 21)
+    dist_vals, dist_weights = get_dist_bins(gauss_vals, bins_count=bins_count)
     plt.figure(2)
+    plt.title("Эмпирическая и теоритическая функция распределения")
     plt.hist(dist_vals, 
              weights=dist_weights, 
              bins=len(dist_vals),
-             label="Нормально распределённые величины")
+             label="Полигон накопленных частот")
     dist_ys = stats.norm.cdf(xs, mu, sig)
-    plt.plot(xs, dist_ys)
+    plt.plot(xs, dist_ys, label="Теоретическое распределение")
 
     plt.show()
 
 
-eq_menu()
+
+def reley_menu():
+    print("<i>Рэлеевское распределение<i>")
+    sig = int(input("Укажите параметр <sigma>: "))
+    count = get_volume()
+    bins_count = get_bins_count()
+    reley_vals = reley_neuman(count, sig)
+
+    dens_vals, dens_weights = get_dens_bins(reley_vals, bins_count=bins_count)
+    plt.figure(1)
+    plt.title("Эмпирическая и теоритическая плотность")
+    plt.hist(dens_vals, 
+             weights=dens_weights, 
+             bins=len(dens_vals),
+             label='Эмпирическая плотность')
+    xs = np.arange(0, 4*sig, 0.01)
+    dens_ys = stats.rayleigh.pdf(xs, 0, sig)
+    plt.plot(xs, dens_ys, label="Теоретическая плотность")
+
+    dist_vals, dist_weights = get_dist_bins(reley_vals, bins_count=bins_count)
+    plt.figure(2)
+    plt.title("Эмпирическая и теоритическая функция распределения")
+    plt.hist(dist_vals, 
+             weights=dist_weights, 
+             bins=len(dist_vals),
+             label="Полигон накопленных частот")
+    dist_ys = stats.rayleigh.cdf(xs, 0, sig)
+    plt.plot(xs, dist_ys, label="Теоретическое распределение")
+
+    plt.show()
+
+
+
+def menu():
+    type_menu = {
+        0: ("Равномерное распределение", eq_menu),
+        1: ("Нормальное распределение", gauss_menu),
+        3: ("Рэлеевское распределение", reley_menu)
+    }
+
+    while True:
+        print("Выберите распределение:")
+        for tp in type_menu.items():
+            print("\t- {} [{}]".format(tp[1][0], tp[0]))
+        type = int(input("> "))
+        type_menu[type][1]()
+
+menu()
+
 
 
