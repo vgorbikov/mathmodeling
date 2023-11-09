@@ -1,7 +1,7 @@
 # ВАРИАНТ 8:
 # f(x) = cos(x), [-1, 1.5]
-#Вычисленное (вручную) значение: 1.83896597
-#Ф(2.98) - 4.9856
+#Вычисленное (аналитически) значение: 1.83896597
+#Ф(2.98) = 4.9856
 
 import random
 import numpy as np
@@ -101,7 +101,7 @@ while d1_mk > 1:
     d1_mk = define_delta_montekarlo(mk_1_sig, n_mk1)*100
     if d1_mk > 1:
         n_mk1 *= 10
-print(f'По методу Монте-Карло (1 сп.):  {mk_1_res[0]}; δ = {d1_mk}%; σ* = {mk_1_sig}\n')
+print(f'По методу Монте-Карло (1 сп.):  {mk_1_res[0]}; δ = {d1_mk}%; σ* = {mk_1_sig}; N:{n_mk1}\n')
 
 n_mk2 = 1000
 d2_mk = 100
@@ -111,6 +111,6 @@ while d2_mk > 1:
     d2_mk = define_delta_montekarlo(mk_2_sig, n_mk2)*100
     if d2_mk > 1:
         n_mk2 *= 10
-print(f'По методу Монте-Карло (2 сп.):  {mk_2_res[0]}; δ = {d2_mk}%; σ* = {mk_2_sig}\n')
+print(f'По методу Монте-Карло (2 сп.):  {mk_2_res[0]}; δ = {d2_mk}%; σ* = {mk_2_sig}; N:{n_mk2}\n')
 
 show_graph(np.cos, -1, 1.5)

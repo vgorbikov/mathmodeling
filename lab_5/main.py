@@ -113,6 +113,20 @@ def reley_neuman(count: int, sig: float):
 
 
 
+def get_average(xs: list):
+    return sum(xs)/len(xs)
+
+
+
+def get_dispersion(xs: list):
+    s = 0
+    mx = get_average(xs)
+    for x in xs:
+        s += (x - mx)**2
+    return s/len(xs)
+
+
+
 theory_graphs = {
     "density":{
         "equal": stats.uniform.pdf,
@@ -198,13 +212,16 @@ def eq_menu():
     plt.plot(xs, dist_ys, label="Теоретическое распределение")
     plt.legend()
 
+    print(f'Выборочное среднее: {get_average(eq_vals)}')
+    print(f'Дисперсия: {get_dispersion(eq_vals)}')
+
     plt.show()
 
 
 
 def gauss_menu():
     print("<i>Нормальное распределение<i>")
-    mu, sig = (int(num) for num in input("Укажите параметры <mu> и <sigma> через пробел: ").split(' '))
+    mu, sig = (float(num) for num in input("Укажите параметры <mu> и <sigma> через пробел: ").split(' '))
     count = get_volume()
     bins_count = get_bins_count()
     gauss_vals = gauss_clt(count, mu, sig)
@@ -229,6 +246,9 @@ def gauss_menu():
              label="Полигон накопленных частот")
     dist_ys = stats.norm.cdf(xs, mu, sig)
     plt.plot(xs, dist_ys, label="Теоретическое распределение")
+
+    print(f'Выборочное среднее: {get_average(gauss_vals)}')
+    print(f'Дисперсия: {get_dispersion(gauss_vals)}')
 
     plt.show()
 
@@ -262,6 +282,9 @@ def reley_menu():
     dist_ys = stats.rayleigh.cdf(xs, 0, sig)
     plt.plot(xs, dist_ys, label="Теоретическое распределение")
 
+    print(f'Выборочное среднее: {get_average(reley_vals)}')
+    print(f'Дисперсия: {get_dispersion(reley_vals)}')
+
     plt.show()
 
 
@@ -279,6 +302,8 @@ def menu():
             print("\t- {} [{}]".format(tp[1][0], tp[0]))
         type = int(input("> "))
         type_menu[type][1]()
+
+
 
 menu()
 
