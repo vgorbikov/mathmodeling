@@ -80,7 +80,7 @@ def gauss_clt(count: int, mu: float, sig: float):
     vals = []
     for i in range(count):
         vi = sum([random.random() for i in range(n)])
-        vals.append((vi*(12/n)-6)*sig+mu)
+        vals.append((vi-n/2)*sig+mu)
     return vals
 
 
